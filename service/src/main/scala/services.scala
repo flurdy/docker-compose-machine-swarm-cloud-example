@@ -25,6 +25,7 @@ class PizzaServiceActor(val registry: ComponentRegistry) extends Actor with Pizz
 object PizzaJsonProtocol extends DefaultJsonProtocol {
   implicit val pizzaOrderFormat        = jsonFormat1(PizzaOrder)
   implicit val pizzaOrderDetailsFormat = jsonFormat2(PizzaOrderDetails)
+  implicit val pizzaQueueFormat        = jsonFormat1(PizzaQueue)
 }
 
 import PizzaJsonProtocol._
@@ -35,46 +36,39 @@ trait PizzaService extends HttpService {
 
   val log = LoggingContext.fromActorRefFactory
 
-  val myRoute =
-    path("heartbeat") {
-      get {
-        respondWithMediaType(MediaTypes.`text/html`){
-          complete {
-            <h1>ALIVE!</h1>
+  lazy val myRoute =
+    respondWithMediaType(MediaTypes.`application/json`){
+      path("pizzas") {
+        get {       
+          complete{
+            log.info(s"Finding all pizzas")
+            PizzaQueue(registry.pizzaRepository.findPizzas) //.toStream
           }
         }
-      }
-    } ~
-    respondWithMediaType(MediaTypes.`application/json`){
+      } ~
       path("pizza") {
         post {
           entity(as[PizzaOrder]){ order =>
             detach(){
-              rejectEmptyResponse {
-                respondWithStatus(201) {
+              order.save match {
+                case Some(details) => {
                   log.info(s"Ordered ${order.pizza}")
-                  val id = -1
-                  val pizzaOrderDetails = PizzaOrderDetails(id,order.pizza)
-                  respondWithHeader(RawHeader("Location", s"/pizza/${id}")) {
-                    complete(pizzaOrderDetails)
+                  respondWithStatus(201) {
+                    respondWithHeader(RawHeader("Location", s"/pizza/${details.id}")){
+                      complete(details)
+                    }
+                  }
+                }
+                case None => {
+                  respondWithStatus(400) {
+                    complete("Order failed")
                   }
                 }
               }
             }
           }
-        }
-      } ~
-      path("pizzas") {
-        pathEnd {
-          get {
-            log.debug(s"Finding all pizzas")
-            rejectEmptyResponse {
-              val pizzas: Stream[PizzaOrderDetails] = PizzaOrders.findPizzas.toStream
-              complete(pizzas)
-            }
-          }
-        }
-      }       
+        }   
+      }   
     }
 
 }

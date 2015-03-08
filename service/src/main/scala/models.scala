@@ -60,12 +60,14 @@ class RuntimeComponentRegistry extends ComponentRegistry {
 
 }
 
-case class PizzaOrder(pizza: String)
+case class PizzaOrder(pizza: String){
+  def save(implicit registry: ComponentRegistry): Option[PizzaOrderDetails] = {
+    registry.pizzaRepository.save(pizza).map( PizzaOrderDetails(_,pizza) )
+  }
+}
 
 case class PizzaOrderDetails(id: Long, pizza: String)
 
-object PizzaOrders {
+case class PizzaQueue(pizzas: Seq[PizzaOrderDetails])
 
-   def findPizzas: Seq[PizzaOrderDetails] = Seq.empty
 
-}

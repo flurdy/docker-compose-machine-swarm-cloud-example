@@ -27,8 +27,8 @@ service:
       - maven
 database:
    image: postgres:9.4
-   ports:
-      - "49932:5432"
+#   ports:
+#      - "49932:5432"
    expose:
       - "5432"
 maven:
