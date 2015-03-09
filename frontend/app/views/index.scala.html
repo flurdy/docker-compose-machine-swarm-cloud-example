@@ -1,7 +1,31 @@
-@()
+@(pizzas: Seq[PizzaOrder])
+
+@import helper._
 
 @main("Pizzeria") {
 
-    <h2>Pizzeria</h2>
+   <h2>Pizzeria</h2>
+
+   <h3>Pizza orders</h3>
+
+
+   @if( pizzas.isEmpty){
+      <p>No pizzas ordered yet</p>
+   } else {
+      <ul>
+      @for( pizza <- pizzas){
+         @for( pizzaId <- pizza.id){
+            <li>@pizzaId : @pizza.pizzaName</li>
+         }
+      }
+      </ul>
+   } 
+
+   <h3>Order pizza</h3>
+
+   @form(action=routes.Application.orderPizza){
+      <input type="text" name="pizza" required placeholder="pizza name"/>
+      <button type="submit">order</button>
+   }
 
 }

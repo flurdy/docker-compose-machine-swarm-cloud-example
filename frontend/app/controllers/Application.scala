@@ -7,11 +7,14 @@ import play.api.mvc.Results._
 import play.api.data.Forms._
 import play.api.libs.ws._
 import play.api.libs.json._
+import play.api.libs.json.Reads._
 import play.api.libs.functional.syntax._
 import play.api.Play.current
 import scala.concurrent.{Future,Promise,Await}
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
+
+case class PizzaQueue(pizzas: Seq[PizzaOrder])
 
 case class PizzaOrder(id: Option[Long], pizzaName: String){
    def this(pizzaName: String) = this(None,pizzaName)
@@ -21,19 +24,25 @@ case class PizzaOrder(id: Option[Long], pizzaName: String){
 
 object PizzaOrder {   
 
-   def parsePizzas(json: String): Seq[PizzaOrder] = {
-      val jsonArray: JsArray  = Json.arr(Json.parse(json))
-      for{
-         listJson <- jsonArray.value
-         list     <- parseListJson(listJson)
-      } yield list
-   }
+  implicit val pizzaOrderReads: Reads[PizzaOrder] = {
+    ( (JsPath \ "id").readNullable[Long] and
+      (JsPath \ "pizza").read[String] 
+    )(PizzaOrder.apply _)
+  }
 
-   def parseListJson(json: JsValue): Option[PizzaOrder] = {
-      for {
-         id        <- (json \ "id") .asOpt[Long]
-         pizzaName <- (json \ "pizza") .asOpt[String]
-      } yield PizzaOrder(Some(id), pizzaName)
+  implicit val pizzaQueueReads: Reads[PizzaQueue] = {
+    ( (JsPath \ "pizzas").read[Seq[PizzaOrder]]
+    ).map(PizzaQueue.apply _)
+  }
+
+   def parsePizzas(queue: String): Seq[PizzaOrder] = {
+      Json.parse(queue).validate[PizzaQueue] match {
+        case pizzaQueue: JsSuccess[PizzaQueue] => pizzaQueue.get.pizzas
+        case error: JsError => {
+          Logger.warn("Json fail: "+JsError.toFlatJson(error).toString())
+          Nil
+        }
+      }
    }
 }
 
@@ -67,8 +76,10 @@ object Application extends Controller {
 
   implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-  def index = Action {
-    Ok(views.html.index())
+  def index = Action.async {
+    PizzeriaAdapter.findPizzas.map { pizzas => 
+      Ok(views.html.index(pizzas))
+    }
   }
   
   val orderFields = mapping (
