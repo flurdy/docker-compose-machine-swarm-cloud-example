@@ -6,29 +6,25 @@ frontend:
       - "service"
    ports:
       - "49910:9000"
-   volumes:
-#      - ./frontend:/var/local/application:rw
-      - frontend/conf:/etc/opt/frontend:ro
+#   volumes:
+#      - frontend/conf:/etc/opt/frontend:ro
    volumes_from:
       - maven
 service:
    build: service
-   command: run -Dconfig.file=/etc/opt/service/docker.conf
+#   command: -Dconfig.file=/etc/opt/pizzaservice/docker.conf
    links:
       - "database"
    ports:
       - "49920:8880"
    expose:
       - "8880"
-   volumes:
-#      - service:/var/local/application:rw
-      - service/src/main/resources:/etc/opt/service:ro
+#   volumes:
+#      - service/src/main/resources:/etc/opt/pizzaservice:ro
    volumes_from:
       - maven
 database:
    image: postgres:9.4
-#   ports:
-#      - "49932:5432"
    expose:
       - "5432"
 maven:
@@ -36,5 +32,5 @@ maven:
    volumes:
       - ~/.m2:/root/.m2:rw
       - ~/.ivy2:/root/.ivy2:rw
-      - frontend/repositories:/root/.sbt/repositories:ro
+      - service/src/main/resources:/root/.sbt:ro
 
