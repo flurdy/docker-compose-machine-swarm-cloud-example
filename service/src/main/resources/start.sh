@@ -6,8 +6,8 @@ JAVA_OPTS="-Xms512m -Xmx1024m"
 
 APP=pizzaservice
 
-APP_LOG_CONFIG=/etc/opt/${APP}/logback.xml
-APP_CONFIG=/etc/opt/${APP}/docker.conf
+APP_LOG_CONFIG=/etc/opt/app/logback.xml
+APP_CONFIG=/etc/opt/app/docker.conf
 APP_HOME=/opt/app
 SHAPELESS_VERSION="_2.11-1.2.4"
 APP_CLASSPATH="$APP_HOME/target/scala-2.11/${APP}.jar:$APP_HOME/lib/shapeless${SHAPELESS_VERSION}.jar"

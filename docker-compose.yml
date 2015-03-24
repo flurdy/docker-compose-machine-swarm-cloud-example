@@ -1,18 +1,18 @@
 frontend:
    build: frontend
-   entrypoint: /var/local/application/target/universal/stage/bin/frontend
-   command: -Dconfig.file=/etc/opt/frontend/docker.conf
+   entrypoint: /opt/app/target/universal/stage/bin/frontend
+   command: "-Dconfig.file=/etc/opt/app/docker.conf"
    links:
       - "service"
    ports:
       - "49910:9000"
 #   volumes:
-#      - frontend/conf:/etc/opt/frontend:ro
+#      - frontend/conf:/etc/opt/app:ro
    volumes_from:
       - maven
 service:
    build: service
-#   command: -Dconfig.file=/etc/opt/pizzaservice/docker.conf
+   command: -Dconfig.file=/etc/opt/app/docker.conf
    links:
       - "database"
    ports:
@@ -20,7 +20,7 @@ service:
    expose:
       - "8880"
 #   volumes:
-#      - service/src/main/resources:/etc/opt/pizzaservice:ro
+#      - service/src/main/resources:/etc/opt/app:ro
    volumes_from:
       - maven
 database:
@@ -32,5 +32,7 @@ maven:
    volumes:
       - ~/.m2:/root/.m2:rw
       - ~/.ivy2:/root/.ivy2:rw
+      - ~/.m2:/home/docker/.m2:rw
+      - ~/.ivy2:/home/docker/.ivy2:rw
       - service/src/main/resources:/root/.sbt:ro
 

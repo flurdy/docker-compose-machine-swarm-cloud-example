@@ -1,24 +1,31 @@
-FROM flurdy/activator:latest
+FROM flurdy/activator:1.3.2
 
 MAINTAINER flurdy
 
 ENV DEBIAN_FRONTEND noninteractive
 
-ENV APPDIR /var/local/application
+ENV APPDIR /opt/app
 
-ADD repositories /root/.sbt/
+RUN mkdir -p /etc/opt/app && \
+  mkdir -p $HOME/.sbt/0.13 
 
-ADD . /var/local/application
+ADD . /opt/app
 
-WORKDIR /var/local/application
+WORKDIR /opt/app
+
+RUN rm -rf /opt/app/target /opt/app/project/project /opt/app/project/target 
+
+RUN cp /opt/app/conf/* /etc/opt/app/ && \
+  cp /opt/app/conf/repositories $HOME/.sbt/ && \
+  cp /opt/app/conf/local.sbt $HOME/.sbt/0.13 
 
 RUN /usr/local/bin/activator stage
 
-WORKDIR /var/local/application
+WORKDIR /opt/app
 
-ENTRYPOINT /var/local/application/target/universal/stage/bin/frontend
+ENTRYPOINT /opt/app/target/universal/stage/bin/frontend
 
-CMD "-Dconfig.file=/etc/opt/frontend/docker.conf"
+CMD "-Dconfig.file=/etc/opt/app/docker.conf"
 
 EXPOSE 9000
 EXPOSE 9999
