@@ -17,15 +17,14 @@ RUN rm -rf /opt/app/target /opt/app/project/project /opt/app/project/target
 
 RUN cp /opt/app/conf/* /etc/opt/app/ && \
   cp /opt/app/conf/repositories $HOME/.sbt/ && \
-  cp /opt/app/conf/local.sbt $HOME/.sbt/0.13 
+  cp /opt/app/conf/local.sbt $HOME/.sbt/0.13/ 
 
 RUN /usr/local/bin/activator stage
 
 WORKDIR /opt/app
 
-ENTRYPOINT /opt/app/target/universal/stage/bin/frontend
+ENTRYPOINT ["/opt/app/target/universal/stage/bin/frontend"]
 
-CMD "-Dconfig.file=/etc/opt/app/docker.conf"
 
 EXPOSE 9000
 EXPOSE 9999

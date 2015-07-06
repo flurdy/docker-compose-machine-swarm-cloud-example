@@ -20,7 +20,6 @@ libraryDependencies ++= {
     "io.spray"            %%  "spray-testkit" % sprayV  % "test",
     "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
     "com.typesafe.akka"   %%  "akka-testkit"  % akkaV   % "test",
-    "org.specs2"          %%  "specs2-core"   % "2.3.12" % "test",
     "org.slf4j"           %   "slf4j-api"     % "1.7.7",
     "com.github.tototoshi" %% "slick-joda-mapper" % "1.2.0",
     "com.typesafe.slick"  %%  "slick"         % slickV,

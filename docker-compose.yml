@@ -1,7 +1,6 @@
 frontend:
    build: frontend
-   entrypoint: /opt/app/target/universal/stage/bin/frontend
-   command: "-Dconfig.file=/etc/opt/app/docker.conf"
+   command: -Dconfig.file=/etc/opt/app/docker.conf
    links:
       - "service"
    ports:
